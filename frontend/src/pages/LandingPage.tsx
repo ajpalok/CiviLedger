@@ -8,13 +8,11 @@ import {
   Zap,
   Lock,
   ArrowRight,
-  CheckCircle2,
   Building2,
   Wallet,
   FileCheck2,
   Layers,
   Sparkles,
-  ExternalLink,
   ChevronRight,
   Cpu,
   Database,
@@ -22,102 +20,102 @@ import {
 } from "lucide-react";
 import "../styles/landing.css";
 
-const FEATURES = [
-  {
-    icon: ShieldCheck,
-    title: "Cryptographic Tamper-Proofing",
-    description: "Credentials are cryptographically hashed and anchored on an immutable blockchain ledger. Any tampering or unauthorized alteration is instantaneously invalidated.",
-    badge: "Enterprise Security",
-  },
-  {
-    icon: Lock,
-    title: "Selective Disclosure & Privacy",
-    description: "Citizens hold sovereign custody of their credentials in self-sovereign wallets, sharing only the exact verified claims required without revealing sensitive underlying data.",
-    badge: "Zero-Knowledge",
-  },
-  {
-    icon: Zap,
-    title: "Sub-Second Cross-Border Verification",
-    description: "Verifiers authenticate student transcripts, national IDs, and business licenses in milliseconds via QR or cryptographic share tokens with zero phone calls or manual paperwork.",
-    badge: "Instant Verification",
-  },
-];
-
-const STEPS = [
-  {
-    num: "01",
-    title: "Government / Issuer Onboarding",
-    desc: "Authorized institutions join via consortium governance and deploy cryptographic signing keys anchored to the public ledger.",
-  },
-  {
-    num: "02",
-    title: "Verifiable Credential Issuance",
-    desc: "Institutional authorities sign and issue standardized credentials directly to citizens' decentralized identifiers (DIDs).",
-  },
-  {
-    num: "03",
-    title: "Citizen Wallet Self-Custody",
-    desc: "Citizens securely hold, manage, and audit their credentials using decentralized Web3 wallets with granular consent controls.",
-  },
-  {
-    num: "04",
-    title: "Zero-Trust Instant Verification",
-    desc: "Verifiers scan QR presentations or inspect cryptographic share tokens directly against on-chain smart contract registries.",
-  },
-];
-
-const ROLES = [
-  {
-    title: "Government & Issuers",
-    subtitle: "Universities, licensing boards, and ministries issuing tamper-proof credentials at scale.",
-    to: "/login",
-    cta: "Launch Issuer Portal",
-    icon: Building2,
-    tag: "B2B / Gov",
-  },
-  {
-    title: "Citizens & Holders",
-    subtitle: "Store verified digital credentials in a personal Web3 vault and present them anywhere.",
-    to: "/connect",
-    cta: "Open Citizen Wallet",
-    icon: Wallet,
-    tag: "B2C / Self-Custody",
-  },
-  {
-    title: "Employers & Verifiers",
-    subtitle: "Instant cryptographic audit and verification node for HR, banks, and regulatory bodies.",
-    to: "/login",
-    cta: "Access Verifier Console",
-    icon: FileCheck2,
-    tag: "B2B Verification",
-  },
-];
-
-const ARCHITECTURE_NODES = [
-  {
-    icon: Globe2,
-    title: "React Web3 Client",
-    desc: "High-performance enterprise UI with role-based routing and internationalization.",
-  },
-  {
-    icon: Cpu,
-    title: "Node.js REST & Crypto Core",
-    desc: "EIP-712 credential hashing, signature verification, and secure presentation token generation.",
-  },
-  {
-    icon: Database,
-    title: "PostgreSQL Data Layer",
-    desc: "Compliant off-chain encrypted credential storage and consent audit logging.",
-  },
-  {
-    icon: Layers,
-    title: "Ethereum Smart Contracts",
-    desc: "CredentialRegistry, IssuerRegistry, and Multi-Sig Governance on-chain anchors.",
-  },
-];
-
 export default function LandingPage() {
   const { t } = useT();
+
+  const features = [
+    {
+      icon: ShieldCheck,
+      title: t("landing.feat1Title"),
+      description: t("landing.feat1Desc"),
+      badge: t("landing.feat1Badge"),
+    },
+    {
+      icon: Lock,
+      title: t("landing.feat2Title"),
+      description: t("landing.feat2Desc"),
+      badge: t("landing.feat2Badge"),
+    },
+    {
+      icon: Zap,
+      title: t("landing.feat3Title"),
+      description: t("landing.feat3Desc"),
+      badge: t("landing.feat3Badge"),
+    },
+  ];
+
+  const steps = [
+    {
+      num: "01",
+      title: t("landing.step1Title"),
+      desc: t("landing.step1Desc"),
+    },
+    {
+      num: "02",
+      title: t("landing.step2Title"),
+      desc: t("landing.step2Desc"),
+    },
+    {
+      num: "03",
+      title: t("landing.step3Title"),
+      desc: t("landing.step3Desc"),
+    },
+    {
+      num: "04",
+      title: t("landing.step4Title"),
+      desc: t("landing.step4Desc"),
+    },
+  ];
+
+  const roles = [
+    {
+      title: t("landing.role1Title"),
+      subtitle: t("landing.role1Subtitle"),
+      to: "/login",
+      cta: t("landing.role1Cta"),
+      icon: Building2,
+      tag: t("landing.role1Tag"),
+    },
+    {
+      title: t("landing.role2Title"),
+      subtitle: t("landing.role2Subtitle"),
+      to: "/connect",
+      cta: t("landing.role2Cta"),
+      icon: Wallet,
+      tag: t("landing.role2Tag"),
+    },
+    {
+      title: t("landing.role3Title"),
+      subtitle: t("landing.role3Subtitle"),
+      to: "/login",
+      cta: t("landing.role3Cta"),
+      icon: FileCheck2,
+      tag: t("landing.role3Tag"),
+    },
+  ];
+
+  const architectureNodes = [
+    {
+      icon: Globe2,
+      title: t("landing.archNode1Title"),
+      desc: t("landing.archNode1Desc"),
+    },
+    {
+      icon: Cpu,
+      title: t("landing.archNode2Title"),
+      desc: t("landing.archNode2Desc"),
+    },
+    {
+      icon: Database,
+      title: t("landing.archNode3Title"),
+      desc: t("landing.archNode3Desc"),
+    },
+    {
+      icon: Layers,
+      title: t("landing.archNode4Title"),
+      desc: t("landing.archNode4Desc"),
+    },
+  ];
 
   return (
     <div className="landing-page selection:bg-accent selection:text-white">
@@ -130,7 +128,7 @@ export default function LandingPage() {
             </div>
             <span className="text-base font-bold tracking-tight text-ink">CiviLedger</span>
             <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent-quiet text-accent border border-accent-border ml-1">
-              B2B2C Trust Network
+              {t("landing.tagline")}
             </span>
           </div>
 
@@ -144,7 +142,7 @@ export default function LandingPage() {
             </Link>
             <Link to="/login">
               <Button variant="primary" size="sm" icon={<ArrowRight size={14} />}>
-                Get Started
+                {t("landing.getStarted")}
               </Button>
             </Link>
           </div>
@@ -162,29 +160,28 @@ export default function LandingPage() {
         <div className="landing-hero__content">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-xs text-indigo-200 font-medium mb-6 shadow-sm backdrop-blur-md">
             <Sparkles size={14} className="text-accent" />
-            <span>Next-Generation Digital Identity & Credential Infrastructure</span>
+            <span>{t("landing.heroBadge")}</span>
           </div>
 
           <h1 className="landing-hero__title">
-            Verifiable Credentials.
+            {t("landing.heroTitle1")}
             <br />
-            <span className="landing-hero__title-accent">Zero Trust Issues.</span>
+            <span className="landing-hero__title-accent">{t("landing.heroTitle2")}</span>
           </h1>
 
           <p className="landing-hero__subtitle">
-            CiviLedger bridges institutional authorities, citizens, and verifiers with a decentralized trust ledger.
-            Issue tamper-proof certificates, maintain sovereign citizen custody, and verify authentications in milliseconds.
+            {t("landing.heroSubtitle")}
           </p>
 
           <div className="landing-hero__cta-row">
             <Link to="/login">
               <Button variant="primary" size="lg" icon={<ArrowRight size={18} />}>
-                Start Issuing Credentials
+                {t("landing.startIssuing")}
               </Button>
             </Link>
             <Link to="/connect">
               <Button variant="secondary" size="lg" icon={<Wallet size={18} />}>
-                Connect Citizen Wallet
+                {t("landing.connectWallet")}
               </Button>
             </Link>
           </div>
@@ -192,20 +189,20 @@ export default function LandingPage() {
           {/* Social Proof / Stats Strip */}
           <div className="mt-14 pt-8 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-left">
             <div>
-              <div className="text-2xl font-bold text-white tracking-tight">100%</div>
-              <div className="text-xs text-slate-400 mt-0.5">Tamper-Evident Proofs</div>
+              <div className="text-2xl font-bold text-white tracking-tight">{t("landing.stat1Val")}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{t("landing.stat1Label")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-white tracking-tight">&lt; 300ms</div>
-              <div className="text-xs text-slate-400 mt-0.5">Verification Latency</div>
+              <div className="text-2xl font-bold text-white tracking-tight">{t("landing.stat2Val")}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{t("landing.stat2Label")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-white tracking-tight">EIP-712</div>
-              <div className="text-xs text-slate-400 mt-0.5">Cryptographic Standards</div>
+              <div className="text-2xl font-bold text-white tracking-tight">{t("landing.stat3Val")}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{t("landing.stat3Label")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-white tracking-tight">Zero</div>
-              <div className="text-xs text-slate-400 mt-0.5">Third-Party Data Leaks</div>
+              <div className="text-2xl font-bold text-white tracking-tight">{t("landing.stat4Val")}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{t("landing.stat4Label")}</div>
             </div>
           </div>
         </div>
@@ -214,13 +211,13 @@ export default function LandingPage() {
       {/* -------- ENTERPRISE FEATURES -------- */}
       <section className="landing-section" id="features">
         <div className="landing-section__inner">
-          <p className="landing-section__eyebrow">Enterprise Grade Security</p>
+          <p className="landing-section__eyebrow">{t("landing.featuresEyebrow")}</p>
           <h2 className="landing-section__heading">
-            Built for National Scale & Enterprise Trust
+            {t("landing.featuresHeading")}
           </h2>
 
           <div className="landing-features">
-            {FEATURES.map((f) => {
+            {features.map((f) => {
               const Icon = f.icon;
               return (
                 <div key={f.title} className="landing-feature">
@@ -244,18 +241,18 @@ export default function LandingPage() {
       {/* -------- HOW IT WORKS STEPPER -------- */}
       <section className="landing-section landing-section--alt" id="how-it-works">
         <div className="landing-section__inner">
-          <p className="landing-section__eyebrow">The B2B2C Architecture</p>
+          <p className="landing-section__eyebrow">{t("landing.flowEyebrow")}</p>
           <h2 className="landing-section__heading">
-            End-to-End Cryptographic Lifecycle
+            {t("landing.flowHeading")}
           </h2>
 
           <div className="landing-steps">
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <div key={s.num} className="landing-step">
                 <div className="landing-step__num">{s.num}</div>
                 <h3 className="landing-step__label">{s.title}</h3>
                 <p className="landing-step__desc">{s.desc}</p>
-                {i < STEPS.length - 1 && (
+                {i < steps.length - 1 && (
                   <div className="landing-step__connector" aria-hidden="true">
                     <ChevronRight className="landing-step__connector-icon" />
                   </div>
@@ -269,13 +266,13 @@ export default function LandingPage() {
       {/* -------- ROLE SELECTION CARDS -------- */}
       <section className="landing-section" id="get-started">
         <div className="landing-section__inner">
-          <p className="landing-section__eyebrow">Tailored Experiences</p>
+          <p className="landing-section__eyebrow">{t("landing.rolesEyebrow")}</p>
           <h2 className="landing-section__heading">
-            Designed for Every Stakeholder
+            {t("landing.rolesHeading")}
           </h2>
 
           <div className="landing-roles">
-            {ROLES.map((r) => {
+            {roles.map((r) => {
               const Icon = r.icon;
               return (
                 <Link key={r.title} to={r.to} className="landing-role group">
@@ -303,13 +300,13 @@ export default function LandingPage() {
       {/* -------- UNDER THE HOOD / ARCHITECTURE -------- */}
       <section className="landing-section landing-section--alt" id="architecture">
         <div className="landing-section__inner">
-          <p className="landing-section__eyebrow">Consortium Technology Stack</p>
+          <p className="landing-section__eyebrow">{t("landing.archEyebrow")}</p>
           <h2 className="landing-section__heading">
-            Distributed Systems Architecture
+            {t("landing.archHeading")}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-            {ARCHITECTURE_NODES.map((node) => {
+            {architectureNodes.map((node) => {
               const Icon = node.icon;
               return (
                 <div key={node.title} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors">
@@ -336,14 +333,14 @@ export default function LandingPage() {
               <span className="text-sm font-semibold text-white">CiviLedger Trust Platform</span>
             </div>
             <p className="text-xs text-slate-400 text-center sm:text-right">
-              Empowering national public sector trust with decentralized verifiable credentials.
+              {t("landing.footerDesc")}
             </p>
           </div>
           <div className="mt-6 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 w-full">
-            <span>© {new Date().getFullYear()} CiviLedger Consortium. All rights reserved.</span>
+            <span>{t("landing.footerRights", { year: new Date().getFullYear() })}</span>
             <div className="flex items-center gap-4 mt-2 sm:mt-0">
-              <Link to="/login" className="hover:text-slate-300 transition-colors">Staff Login</Link>
-              <Link to="/connect" className="hover:text-slate-300 transition-colors">Citizen Vault</Link>
+              <Link to="/login" className="hover:text-slate-300 transition-colors">{t("landing.footerStaff")}</Link>
+              <Link to="/connect" className="hover:text-slate-300 transition-colors">{t("landing.footerVault")}</Link>
             </div>
           </div>
         </div>
