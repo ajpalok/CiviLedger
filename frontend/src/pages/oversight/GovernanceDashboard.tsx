@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
 import { governanceApi } from "../../services/api";
 import { useApi } from "../../hooks/useApi";
-import { Button } from "../../components/common/Button";
+import { Button } from "../../components/ui/Button";
+import { Input, Select } from "../../components/ui/Input";
 import { StatsCard } from "../../components/ui/StatsCard";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { Panel } from "../../components/ui/Panel";
+import { DataTable } from "../../components/ui/DataTable";
 import { Link } from "react-router-dom";
 import type { Organization } from "../../types";
+import { Building2, CheckCircle2, Clock, Activity, FileText, UserPlus, ShieldAlert, Check } from "lucide-react";
 
 interface GovernanceStats {
   totalOrgs: number;
@@ -23,7 +28,7 @@ export default function GovernanceDashboard() {
   const [stats, setStats] = useState<GovernanceStats | null>(null);
 
   const { run: fetchPending, data: pendingOrgs } = useApi<Organization[]>(governanceApi.listPendingMembers);
-  const { run: fetchOrgs, data: allOrgs } = useApi<Organization[]>(governanceApi.listOrganizations);
+  const { run: fetchOrgs, data: allOrgs, loading } = useApi<Organization[]>(governanceApi.listOrganizations);
 
   useEffect(() => {
     fetchPending();
@@ -31,7 +36,8 @@ export default function GovernanceDashboard() {
     governanceApi.stats().then((r) => setStats(r.data)).catch(() => {});
   }, [fetchPending, fetchOrgs]);
 
-  async function handlePropose() {
+  async function handlePropose(e: React.FormEvent) {
+    e.preventDefault();
     setBusy(true);
     setMessage(null);
     try {
@@ -39,7 +45,7 @@ export default function GovernanceDashboard() {
         name,
         onchain_address: onchainAddress,
         type: orgType,
-        credential_types_authorized: []
+        credential_types_authorized: [],
       });
       setMessage(`Proposed "${name}" successfully.`);
       setName("");
@@ -57,7 +63,7 @@ export default function GovernanceDashboard() {
   async function handleApprove(orgId: string) {
     try {
       await governanceApi.approveMember(orgId);
-      setMessage("Member approved.");
+      setMessage("Member approved successfully.");
       fetchPending();
       fetchOrgs();
       governanceApi.stats().then((r) => setStats(r.data)).catch(() => {});
@@ -66,118 +72,192 @@ export default function GovernanceDashboard() {
     }
   }
 
+  const columns = [
+    {
+      key: "name",
+      header: "Organization Name",
+      render: (org: Organization) => (
+        <div>
+          <span className="font-semibold text-text">{org.name}</span>
+          <p className="font-mono text-[11px] text-text-muted">{org.id.slice(0, 10)}...</p>
+        </div>
+      ),
+    },
+    {
+      key: "type",
+      header: "Role / Type",
+      render: (org: Organization) => (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-sunken border border-border text-text">
+          {org.type}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Membership Status",
+      render: (org: Organization) => (
+        <span
+          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+            org.status === "ACTIVE"
+              ? "bg-ok-bg text-ok-fg border-ok-border"
+              : org.status === "PENDING"
+              ? "bg-warn-bg text-warn-fg border-warn-border"
+              : "bg-err-bg text-err-fg border-err-border"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              org.status === "ACTIVE" ? "bg-ok-fg" : org.status === "PENDING" ? "bg-warn-fg" : "bg-err-fg"
+            }`}
+          />
+          {org.status}
+        </span>
+      ),
+    },
+    {
+      key: "address",
+      header: "Blockchain Address",
+      render: (org: Organization) => (
+        <span className="font-mono text-xs text-text-muted">
+          {org.onchain_address ? `${org.onchain_address.slice(0, 10)}...${org.onchain_address.slice(-6)}` : "—"}
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="max-w-3xl mx-auto mt-10 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">Governance Dashboard</h1>
-        <Link to="/oversight/audit">
-          <Button className="bg-slate-600 hover:bg-slate-500">View Audit Log</Button>
-        </Link>
-      </div>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title="Network Governance & Oversight"
+        description="Regulate participating institutions, approve decentralized identities, and inspect consortium audit trails."
+        actions={
+          <Link to="/oversight/audit">
+            <Button variant="secondary" icon={<FileText size={16} />}>
+              Consortium Audit Log
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatsCard label="Total Orgs" value={stats.totalOrgs} color="accent" />
-          <StatsCard label="Active" value={stats.activeOrgs} color="ok" />
-          <StatsCard label="Pending" value={stats.pendingOrgs} color="warn" />
-          <StatsCard label="Governance Events" value={stats.totalGovernanceEvents} color="default" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatsCard
+            label="Total Institutions"
+            value={stats.totalOrgs}
+            color="accent"
+            icon={<Building2 size={20} className="text-accent" />}
+          />
+          <StatsCard
+            label="Active Consortium Nodes"
+            value={stats.activeOrgs}
+            color="ok"
+            icon={<CheckCircle2 size={20} className="text-ok-fg" />}
+          />
+          <StatsCard
+            label="Pending Approvals"
+            value={stats.pendingOrgs}
+            color="warn"
+            icon={<Clock size={20} className="text-warn-fg" />}
+          />
+          <StatsCard
+            label="Total Ledger Events"
+            value={stats.totalGovernanceEvents}
+            color="default"
+            icon={<Activity size={20} className="text-text-muted" />}
+          />
         </div>
       )}
 
-      {/* Propose New Member */}
-      <div className="bg-white border rounded-lg p-4 mb-6">
-        <h2 className="font-semibold text-sm mb-3">Propose New Member</h2>
-        <div className="flex flex-col gap-3">
-          <input
-            className="border rounded px-3 py-2"
-            placeholder="Organization name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            className="border rounded px-3 py-2"
-            placeholder="On-chain address (0x...)"
-            value={onchainAddress}
-            onChange={(e) => setOnchainAddress(e.target.value)}
-          />
-          <select
-            className="border rounded px-3 py-2"
-            value={orgType}
-            onChange={(e) => setOrgType(e.target.value as any)}
-          >
-            <option value="ISSUER">Issuer</option>
-            <option value="VERIFIER">Verifier</option>
-            <option value="BOTH">Both</option>
-          </select>
-          <Button onClick={handlePropose} disabled={busy || !name || !onchainAddress}>
-            {busy ? "Submitting..." : "Propose Member"}
-          </Button>
-          {message && (
-            <p className={`text-sm ${message.includes("success") || message.includes("approved") ? "text-green-700" : "text-red-600"}`}>
-              {message}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Pending Approvals */}
+      {/* Pending Approvals Panel */}
       {pendingOrgs && pendingOrgs.length > 0 && (
-        <div className="bg-white border rounded-lg p-4 mb-6">
-          <h2 className="font-semibold text-sm mb-3">Pending Approvals</h2>
-          <div className="flex flex-col gap-2">
+        <Panel title={`Pending Consortium Approvals (${pendingOrgs.length})`} variant="elevated">
+          <div className="space-y-3">
             {pendingOrgs.map((org) => (
-              <div key={org.id} className="flex items-center justify-between border rounded px-3 py-2">
+              <div
+                key={org.id}
+                className="flex items-center justify-between p-3.5 rounded-xl border border-warn-border bg-warn-bg/20"
+              >
                 <div>
-                  <p className="text-sm font-medium">{org.name}</p>
-                  <p className="text-xs text-slate-500 font-mono">{org.onchain_address}</p>
+                  <p className="text-sm font-semibold text-text">{org.name}</p>
+                  <p className="text-xs font-mono text-text-muted mt-0.5">{org.onchain_address}</p>
+                  <span className="inline-block mt-1 text-[11px] font-medium text-warn-fg uppercase tracking-wider">
+                    Requested Type: {org.type}
+                  </span>
                 </div>
-                <Button onClick={() => handleApprove(org.id)} className="bg-green-700 hover:bg-green-600">
-                  Approve
+                <Button
+                  onClick={() => handleApprove(org.id)}
+                  variant="primary"
+                  size="sm"
+                  icon={<Check size={14} />}
+                >
+                  Approve Node
                 </Button>
               </div>
             ))}
           </div>
-        </div>
+        </Panel>
       )}
 
-      {/* All Organizations */}
-      <div className="bg-white border rounded-lg p-4">
-        <h2 className="font-semibold text-sm mb-3">All Organizations</h2>
-        {allOrgs && allOrgs.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left">
-              <tr>
-                <th className="p-2">Name</th>
-                <th className="p-2">Type</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allOrgs.map((org) => (
-                <tr key={org.id} className="border-t">
-                  <td className="p-2">{org.name}</td>
-                  <td className="p-2">{org.type}</td>
-                  <td className="p-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      org.status === "ACTIVE"
-                        ? "bg-green-100 text-green-800"
-                        : org.status === "PENDING"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}>
-                      {org.status}
-                    </span>
-                  </td>
-                  <td className="p-2 font-mono text-xs">{org.onchain_address?.slice(0, 10)}...</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-slate-500 text-sm">No organizations yet.</p>
-        )}
+      {/* Propose New Member Form */}
+      <Panel title="Propose New Institutional Node" variant="default">
+        <form onSubmit={handlePropose} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              label="Organization Legal Name"
+              placeholder="e.g. Dhaka University Registry"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <Input
+              label="Ethereum On-Chain Address"
+              placeholder="0x..."
+              value={onchainAddress}
+              onChange={(e) => setOnchainAddress(e.target.value)}
+              required
+            />
+            <Select
+              label="Authorized Consortium Role"
+              value={orgType}
+              onChange={(e) => setOrgType(e.target.value as any)}
+              options={[
+                { value: "ISSUER", label: "Issuer (Issues credentials)" },
+                { value: "VERIFIER", label: "Verifier (Audits presentations)" },
+                { value: "BOTH", label: "Both (Issuance & Verification)" },
+              ]}
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <div>
+              {message && (
+                <p
+                  className={`text-xs font-medium ${
+                    message.includes("success") || message.includes("approved") ? "text-ok-fg" : "text-err-fg"
+                  }`}
+                >
+                  {message}
+                </p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={busy}
+              disabled={busy || !name.trim() || !onchainAddress.trim()}
+              icon={<UserPlus size={15} />}
+            >
+              Submit Governance Proposal
+            </Button>
+          </div>
+        </form>
+      </Panel>
+
+      {/* All Organizations Table */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-text">Participating Consortium Organizations</h3>
+        <DataTable columns={columns} data={allOrgs || []} loading={loading} />
       </div>
     </div>
   );

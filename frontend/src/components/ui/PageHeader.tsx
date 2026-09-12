@@ -1,23 +1,22 @@
 import type { ReactNode } from "react";
 
-export function PageHeader({
-  title,
-  description,
-  actions,
-}: {
-  title: ReactNode;
-  description?: ReactNode;
+interface PageHeaderProps {
+  title: string;
+  description?: string;
   actions?: ReactNode;
-}) {
+  breadcrumb?: ReactNode;
+}
+
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-semibold text-ink">{title}</h1>
+        <h1 className="text-xl font-bold text-ink tracking-tight">{title}</h1>
         {description && (
-          <p className="mt-1 max-w-[68ch] text-sm text-ink-muted">{description}</p>
+          <p className="text-sm text-ink-muted mt-0.5">{description}</p>
         )}
       </div>
-      {actions && <div className="shrink-0">{actions}</div>}
-    </header>
+      {actions && <div className="flex items-center gap-2 mt-3 sm:mt-0">{actions}</div>}
+    </div>
   );
 }

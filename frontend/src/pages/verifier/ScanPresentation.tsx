@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/common/Button";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import { StatsCard } from "../../components/ui/StatsCard";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { Panel } from "../../components/ui/Panel";
 import { verifierApi } from "../../services/api";
 import { Html5Qrcode } from "html5-qrcode";
+import { QrCode, Camera, ShieldCheck, CheckCircle2, XCircle, Search, AlertCircle, StopCircle } from "lucide-react";
 
 interface VerifierStats {
   totalVerifications: number;
@@ -21,10 +25,8 @@ export default function ScanPresentation() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   function extractToken(text: string): string {
-    // Handle full URLs like http://localhost:5173/verify/abc123
     const match = text.match(/\/verify\/([a-zA-Z0-9]+)/);
     if (match) return match[1];
-    // Otherwise treat the whole text as a token
     return text.trim();
   }
 
@@ -49,12 +51,10 @@ export default function ScanPresentation() {
           setScanning(false);
           navigate(`/verifier/result/${extractedToken}`);
         },
-        () => {
-          // QR code not found in frame — ignore
-        }
+        () => {}
       );
     } catch (err: any) {
-      setCameraError(err?.message || "Camera not available. Use the manual input below.");
+      setCameraError(err?.message || "Camera access not allowed or unavailable. Please use the manual token input.");
       setScanning(false);
     }
   }
@@ -67,7 +67,6 @@ export default function ScanPresentation() {
     setScanning(false);
   }
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
@@ -76,82 +75,119 @@ export default function ScanPresentation() {
     };
   }, []);
 
-  // Fetch stats on mount
   useEffect(() => {
     verifierApi.stats().then((r) => setStats(r.data)).catch(() => {});
   }, []);
 
   return (
-    <div className="max-w-md mx-auto mt-10 px-4">
-      <h1 className="text-xl font-bold mb-4">Verify a Presentation</h1>
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+      <PageHeader
+        title="Verify Credential Presentation"
+        description="Scan a citizen's dynamic QR code or submit a cryptographic share token to inspect validity and blockchain status."
+      />
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <StatsCard label="Verified" value={stats.totalVerifications} color="accent" />
-          <StatsCard label="Passed" value={stats.passed} color="ok" />
-          <StatsCard label="Failed" value={stats.failed} color="danger" />
+        <div className="grid grid-cols-3 gap-4">
+          <StatsCard
+            label="Total Audited"
+            value={stats.totalVerifications}
+            color="accent"
+            icon={<ShieldCheck size={20} className="text-accent" />}
+          />
+          <StatsCard
+            label="Verified & Valid"
+            value={stats.passed}
+            color="ok"
+            icon={<CheckCircle2 size={20} className="text-ok-fg" />}
+          />
+          <StatsCard
+            label="Tampered / Failed"
+            value={stats.failed}
+            color="danger"
+            icon={<XCircle size={20} className="text-err-fg" />}
+          />
         </div>
       )}
 
-      {/* QR Scanner Section */}
-      <div className="bg-white border rounded-lg p-4 mb-4">
-        <h2 className="font-semibold text-sm mb-3">📷 Scan QR Code</h2>
-        <p className="text-xs text-slate-500 mb-3">
-          Point your camera at the citizen's QR code for instant verification.
-        </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* QR Scanner Section */}
+        <Panel title="Scan Live QR Code" variant="elevated">
+          <p className="text-xs text-text-muted mb-4 leading-relaxed">
+            Point your device camera at the citizen's presented QR code for instantaneous zero-knowledge verification.
+          </p>
 
-        {/* QR Reader Container */}
-        <div
-          id="qr-reader"
-          ref={containerRef}
-          className="w-full rounded-lg overflow-hidden mb-3"
-          style={{ display: scanning ? "block" : "none" }}
-        />
+          {/* Camera Frame Viewport */}
+          <div
+            id="qr-reader"
+            ref={containerRef}
+            className="w-full rounded-xl overflow-hidden mb-4 border border-border bg-black/5"
+            style={{ display: scanning ? "block" : "none" }}
+          />
 
-        {!scanning ? (
-          <Button onClick={startScanning} className="w-full">
-            🔍 Start Camera Scanner
-          </Button>
-        ) : (
-          <Button onClick={stopScanning} className="w-full bg-slate-600 hover:bg-slate-500">
-            Stop Scanner
-          </Button>
-        )}
+          {!scanning ? (
+            <Button
+              onClick={startScanning}
+              variant="primary"
+              className="w-full"
+              icon={<Camera size={16} />}
+            >
+              Start Live Camera Scanner
+            </Button>
+          ) : (
+            <Button
+              onClick={stopScanning}
+              variant="secondary"
+              className="w-full"
+              icon={<StopCircle size={16} />}
+            >
+              Stop Scanner
+            </Button>
+          )}
 
-        {cameraError && (
-          <p className="text-xs text-red-500 mt-2">{cameraError}</p>
-        )}
-      </div>
+          {cameraError && (
+            <div className="mt-3 p-3 rounded-lg bg-err-bg border border-err-border text-err-fg text-xs flex items-center gap-2">
+              <AlertCircle size={14} className="shrink-0" />
+              <span>{cameraError}</span>
+            </div>
+          )}
+        </Panel>
 
-      {/* Manual Input Section */}
-      <div className="bg-white border rounded-lg p-4">
-        <h2 className="font-semibold text-sm mb-3">✏️ Manual Input</h2>
-        <p className="text-xs text-slate-500 mb-3">
-          Or paste the share token or link from the citizen.
-        </p>
-        <input
-          className="border rounded px-3 py-2 w-full mb-3 text-sm"
-          placeholder="Paste share token or full URL..."
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && token) {
-              const t = extractToken(token);
-              navigate(`/verifier/result/${t}`);
-            }
-          }}
-        />
-        <Button
-          onClick={() => {
-            const t = extractToken(token);
-            navigate(`/verifier/result/${t}`);
-          }}
-          disabled={!token}
-          className="w-full"
-        >
-          Verify
-        </Button>
+        {/* Manual Input Section */}
+        <Panel title="Manual Presentation Token" variant="elevated">
+          <p className="text-xs text-text-muted mb-4 leading-relaxed">
+            Alternatively, paste the presentation link or raw cryptographic share token provided by the credential holder.
+          </p>
+
+          <div className="space-y-4">
+            <Input
+              label="Share Token or Presentation URL"
+              placeholder="e.g. pres_8f92a1... or https://.../verify/..."
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && token) {
+                  const t = extractToken(token);
+                  navigate(`/verifier/result/${t}`);
+                }
+              }}
+              leadingIcon={<QrCode size={16} />}
+            />
+
+            <Button
+              onClick={() => {
+                const t = extractToken(token);
+                navigate(`/verifier/result/${t}`);
+              }}
+              disabled={!token.trim()}
+              variant="secondary"
+              className="w-full"
+              icon={<Search size={15} />}
+            >
+              Inspect Presentation
+            </Button>
+          </div>
+        </Panel>
       </div>
     </div>
   );
