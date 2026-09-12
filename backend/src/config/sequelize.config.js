@@ -8,7 +8,10 @@ const common = {
   database: process.env.DB_NAME,
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  dialect: process.env.DB_DIALECT || "postgres"
+  dialect: process.env.DB_DIALECT || "postgres",
+  ...(process.env.DB_DIALECT === "sqlite" && {
+    storage: process.env.DB_STORAGE || "./dev.sqlite"
+  })
 };
 
 module.exports = {

@@ -1,7 +1,13 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
 import { citizenApi } from "../../services/api";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { Panel } from "../../components/ui/Panel";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { CopyableValue } from "../../components/ui/CopyableValue";
+import { Button } from "../../components/ui/Button";
+import { Share2, History, CheckCircle2, XCircle, Clock, Building2 } from "lucide-react";
 
 export default function AuditHistory() {
   const { run, data: presentations, loading, error } = useApi(citizenApi.auditHistory);
@@ -11,75 +17,137 @@ export default function AuditHistory() {
   }, [run]);
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 px-4">
-      <h1 className="text-xl font-bold mb-4">My Sharing History</h1>
-      <p className="text-sm text-slate-500 mb-6">
-        Every time you share credentials with a verifier, it is logged here with an on-chain consent record.
-      </p>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title="Consent & Sharing History"
+        description="Immutable audit trail of every credential presentation you've shared with external verifiers."
+        actions={
+          <Link to="/citizen/share">
+            <Button variant="primary" icon={<Share2 size={16} />}>
+              New Presentation
+            </Button>
+          </Link>
+        }
+      />
 
-      {loading && <LoadingSpinner />}
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-
-      {!loading && presentations?.length === 0 && (
-        <p className="text-slate-500 text-sm">No sharing history yet.</p>
+      {error && (
+        <div className="p-4 rounded-xl bg-err-bg border border-err-border text-err-fg text-xs">
+          {error}
+        </div>
       )}
 
-      <div className="flex flex-col gap-4">
-        {presentations?.map((p: any) => (
-          <div key={p.id} className="bg-white border rounded-lg p-4 shadow-sm">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <p className="text-sm font-medium">
-                  Shared {p.credential_ids?.length || 0} credential(s)
-                </p>
-                <p className="text-xs text-slate-500">
-                  {new Date(p.created_at).toLocaleString()}
-                </p>
-              </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                new Date(p.expires_at) > new Date()
-                  ? "bg-green-100 text-green-800"
-                  : "bg-slate-100 text-slate-600"
-              }`}>
-                {new Date(p.expires_at) > new Date() ? "Active" : "Expired"}
-              </span>
-            </div>
+      {loading && (
+        <div className="space-y-3">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="h-32 rounded-xl border border-border bg-surface animate-pulse" />
+          ))}
+        </div>
+      )}
 
-            {p.verifierOrg && (
-              <p className="text-xs text-slate-500 mb-1">
-                Verifier: <span className="font-medium text-slate-700">{p.verifierOrg.name}</span>
-              </p>
-            )}
+      {!loading && (!presentations || presentations.length === 0) && (
+        <EmptyState
+          icon={<History size={36} className="text-text-muted" />}
+          title="No sharing history yet"
+          description="Whenever you present or share a credential via QR code or link, the cryptographic consent record and audit log will appear here."
+          action={
+            <Link to="/citizen/share">
+              <Button variant="primary" icon={<Share2 size={14} />}>
+                Share Your First Credential
+              </Button>
+            </Link>
+          }
+        />
+      )}
 
-            <p className="text-xs text-slate-400 font-mono break-all">
-              Token: {p.share_token}
-            </p>
+      {!loading && presentations && presentations.length > 0 && (
+        <div className="space-y-4">
+          {presentations.map((p: any) => {
+            const isExpired = new Date(p.expires_at) <= new Date();
 
-            {/* Verification events for this presentation */}
-            {p.VerificationEvents && p.VerificationEvents.length > 0 && (
-              <div className="mt-3 border-t pt-2">
-                <p className="text-xs font-medium text-slate-600 mb-1">Verification Results:</p>
-                {p.VerificationEvents.map((v: any) => (
-                  <div key={v.id} className="flex items-center gap-2 text-xs">
-                    <span className={`inline-block w-2 h-2 rounded-full ${
-                      v.result === "VALID" ? "bg-green-500" : "bg-red-500"
-                    }`} />
-                    <span>{v.result}</span>
-                    <span className="text-slate-400">
-                      {new Date(v.verified_at).toLocaleString()}
-                    </span>
-                    {v.onchain_receipt_tx && (
-                      <span className="text-slate-300 font-mono">
-                        tx:{v.onchain_receipt_tx.slice(0, 10)}...
+            return (
+              <Panel key={p.id} variant="elevated" className="overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border/60">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-text text-sm">
+                        Presentation Session: {p.credential_ids?.length || 0} Credential(s)
                       </span>
-                    )}
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
+                          !isExpired
+                            ? "bg-ok-bg text-ok-fg border-ok-border"
+                            : "bg-surface-sunken text-text-muted border-border"
+                        }`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${!isExpired ? "bg-ok-fg" : "bg-text-muted"}`} />
+                        {!isExpired ? "Active Presentation" : "Expired"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      Created: {new Date(p.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+
+                  {p.verifierOrg && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border border-border text-xs text-text">
+                      <Building2 size={13} className="text-accent" />
+                      <span className="text-text-muted">Target Verifier:</span>
+                      <span className="font-medium">{p.verifierOrg.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="space-y-1">
+                    <span className="text-text-muted text-[11px]">Dynamic Presentation Token:</span>
+                    <div>
+                      <CopyableValue value={p.share_token} kind="token" />
+                    </div>
+                  </div>
+                  <div className="text-right text-[11px] text-text-muted flex items-center gap-1 self-start sm:self-auto">
+                    <Clock size={12} />
+                    <span>Expires: {new Date(p.expires_at).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Verification Events */}
+                {p.VerificationEvents && p.VerificationEvents.length > 0 && (
+                  <div className="mt-2 pt-3 border-t border-border/60 bg-surface-sunken/40 -mx-6 -mb-6 p-4">
+                    <p className="text-xs font-semibold text-text mb-2 flex items-center gap-1.5">
+                      <CheckCircle2 size={14} className="text-accent" />
+                      Verification Audit Records ({p.VerificationEvents.length})
+                    </p>
+                    <div className="space-y-1.5">
+                      {p.VerificationEvents.map((v: any) => (
+                        <div
+                          key={v.id}
+                          className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-lg bg-surface border border-border text-xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            {v.result === "VALID" ? (
+                              <CheckCircle2 size={14} className="text-ok-fg" />
+                            ) : (
+                              <XCircle size={14} className="text-err-fg" />
+                            )}
+                            <span className="font-semibold text-text">{v.result}</span>
+                            <span className="text-text-muted text-[11px]">
+                              {new Date(v.verified_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+
+                          {v.onchain_receipt_tx && (
+                            <CopyableValue value={v.onchain_receipt_tx} kind="tx" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Panel>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
