@@ -7,7 +7,7 @@ module.exports = {
       name: { type: Sequelize.STRING, allowNull: false },
       type: { type: Sequelize.ENUM("ISSUER", "VERIFIER", "BOTH"), allowNull: false },
       onchain_address: { type: Sequelize.STRING(42), unique: true },
-      credential_types_authorized: { type: Sequelize.ARRAY(Sequelize.STRING) },
+      credential_types_authorized: { type: Sequelize.JSON },
       status: { type: Sequelize.ENUM("PENDING", "ACTIVE", "SUSPENDED", "OFFBOARDED"), defaultValue: "PENDING" },
       created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
     });
@@ -30,8 +30,8 @@ module.exports = {
       code: { type: Sequelize.STRING(50), allowNull: false, unique: true },
       display_name: { type: Sequelize.STRING, allowNull: false },
       schema_version: { type: Sequelize.INTEGER, defaultValue: 1 },
-      json_schema: { type: Sequelize.JSONB, allowNull: false },
-      minimal_disclosure_fields: { type: Sequelize.JSONB },
+      json_schema: { type: Sequelize.JSON, allowNull: false },
+      minimal_disclosure_fields: { type: Sequelize.JSON },
       created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
     });
 
@@ -40,7 +40,7 @@ module.exports = {
       credential_type_id: { type: Sequelize.UUID, allowNull: false, references: { model: "credential_types", key: "id" } },
       issuer_org_id: { type: Sequelize.UUID, allowNull: false, references: { model: "organizations", key: "id" } },
       citizen_user_id: { type: Sequelize.UUID, allowNull: false, references: { model: "users", key: "id" } },
-      payload: { type: Sequelize.JSONB, allowNull: false },
+      payload: { type: Sequelize.JSON, allowNull: false },
       payload_hash: { type: Sequelize.STRING(66), allowNull: false },
       onchain_anchor_id: { type: Sequelize.STRING(66) },
       issued_at: { type: Sequelize.DATE, allowNull: false },
@@ -54,7 +54,7 @@ module.exports = {
       id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
       source_credential_id: { type: Sequelize.UUID, allowNull: false, references: { model: "credentials", key: "id" } },
       claim_key: { type: Sequelize.STRING(100), allowNull: false },
-      claim_value: { type: Sequelize.JSONB, allowNull: false },
+      claim_value: { type: Sequelize.JSON, allowNull: false },
       payload_hash: { type: Sequelize.STRING(66), allowNull: false },
       onchain_anchor_id: { type: Sequelize.STRING(66) },
       created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
@@ -64,7 +64,7 @@ module.exports = {
       id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
       citizen_user_id: { type: Sequelize.UUID, allowNull: false, references: { model: "users", key: "id" } },
       verifier_org_id: { type: Sequelize.UUID, references: { model: "organizations", key: "id" } },
-      credential_ids: { type: Sequelize.ARRAY(Sequelize.UUID), allowNull: false },
+      credential_ids: { type: Sequelize.JSON, allowNull: false },
       consent_signature: { type: Sequelize.TEXT, allowNull: false },
       consent_hash: { type: Sequelize.STRING(66), allowNull: false },
       share_token: { type: Sequelize.STRING(64), allowNull: false, unique: true },
@@ -98,7 +98,7 @@ module.exports = {
       },
       organization_id: { type: Sequelize.UUID, references: { model: "organizations", key: "id" } },
       actor_user_id: { type: Sequelize.UUID, references: { model: "users", key: "id" } },
-      details: { type: Sequelize.JSONB },
+      details: { type: Sequelize.JSON },
       onchain_tx_hash: { type: Sequelize.STRING(66) },
       created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
     });
