@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { StatsCard } from "../../components/ui/StatsCard";
@@ -22,7 +22,6 @@ export default function ScanPresentation() {
   const [stats, setStats] = useState<VerifierStats | null>(null);
   const navigate = useNavigate();
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   function extractToken(text: string): string {
     const match = text.match(/\/verify\/([a-zA-Z0-9]+)/);
@@ -47,21 +46,32 @@ export default function ScanPresentation() {
         (decodedText) => {
           const extractedToken = extractToken(decodedText);
           setToken(extractedToken);
-          scanner.stop().catch(() => {});
-          setScanning(false);
-          navigate(`/verifier/result/${extractedToken}`);
+          // Stop and clean up before navigating to prevent React DOM manipulation errors
+          scanner.stop().then(() => {
+            scanner.clear();
+            setScanning(false);
+            navigate(`/verifier/result/${extractedToken}`);
+          }).catch(() => {
+            setScanning(false);
+            navigate(`/verifier/result/${extractedToken}`);
+          });
         },
         () => {}
       );
     } catch (err: any) {
       setCameraError(err?.message || "Camera access not allowed or unavailable. Please use the manual token input.");
       setScanning(false);
+      if (scannerRef.current) {
+        try { scannerRef.current.clear(); } catch (e) {}
+      }
     }
   }
 
   function stopScanning() {
     if (scannerRef.current) {
-      scannerRef.current.stop().catch(() => {});
+      scannerRef.current.stop().then(() => {
+        scannerRef.current?.clear();
+      }).catch(() => {});
       scannerRef.current = null;
     }
     setScanning(false);
@@ -84,6 +94,14 @@ export default function ScanPresentation() {
       <PageHeader
         title="Verify Credential Presentation"
         description="Scan a citizen's dynamic QR code or submit a cryptographic share token to inspect validity and blockchain status."
+        actions={
+          <Link
+            to="/verifier/history"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-control border border-line bg-surface text-sm font-medium text-ink hover:bg-surface-sunken transition-colors"
+          >
+            View History
+          </Link>
+        }
       />
 
       {/* Stats Cards */}
@@ -117,12 +135,11 @@ export default function ScanPresentation() {
             Point your device camera at the citizen's presented QR code for instantaneous zero-knowledge verification.
           </p>
 
-          {/* Camera Frame Viewport */}
+          {/* QR Reader Container */}
           <div
-            id="qr-reader"
-            ref={containerRef}
-            className="w-full rounded-xl overflow-hidden mb-4 border border-border bg-black/5"
-            style={{ display: scanning ? "block" : "none" }}
+            className="w-full rounded-xl overflow-hidden mb-4 border border-border bg-black/10"
+            style={{ display: scanning ? "block" : "none", minHeight: scanning ? "250px" : "0" }}
+            dangerouslySetInnerHTML={{ __html: '<div id="qr-reader" style="width:100%"></div>' }}
           />
 
           {!scanning ? (

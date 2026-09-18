@@ -39,7 +39,10 @@ export default api;
 export const authApi = {
   login: (email: string, password: string) => api.post("/auth/login", { email, password }),
   register: (payload: object) => api.post("/auth/register", payload),
-  walletLogin: (wallet_address: string) => api.post("/auth/wallet-login", { wallet_address })
+  // Wallet login is challenge / response: fetch a message, sign it, exchange the signature.
+  walletNonce: (wallet_address: string) => api.post("/auth/wallet-nonce", { wallet_address }),
+  walletLogin: (wallet_address: string, signature: string) =>
+    api.post("/auth/wallet-login", { wallet_address, signature })
 };
 
 export const issuerApi = {
@@ -65,7 +68,8 @@ export const verifierApi = {
   check: (token: string) => api.get(`/verifier/presentations/${token}/check`),
   // Authenticated verifier action: same checks, plus an on-chain receipt + logged event.
   verify: (share_token: string) => api.post("/verifier/verify", { share_token }),
-  stats: () => api.get("/verifier/stats")
+  stats: () => api.get("/verifier/stats"),
+  history: () => api.get("/verifier/history")
 };
 
 export const governanceApi = {

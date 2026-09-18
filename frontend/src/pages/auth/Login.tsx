@@ -6,13 +6,14 @@ import { Input } from "../../components/ui/Input";
 import { Shield, ArrowRight, KeyRound, CheckCircle2, ChevronDown, ChevronUp, Lock } from "lucide-react";
 
 const DEMO_ACCOUNTS = [
-  { label: "Education Officer (Issuer)", email: "nusrat@edu.gov.test", role: "ISSUER_ADMIN" },
-  { label: "NID Officer (Issuer)", email: "rahim@identity.gov.test", role: "ISSUER_ADMIN" },
-  { label: "BRTA Officer (Issuer)", email: "kamal@brta.gov.test", role: "ISSUER_ADMIN" },
-  { label: "Ahnaf Tahmid (Citizen)", email: "ahnaf@citizen.test", role: "CITIZEN" },
-  { label: "Sumaya Zaman (Citizen)", email: "sumaya@citizen.test", role: "CITIZEN" },
-  { label: "HR Manager (Verifier)", email: "abrar@employer.test", role: "VERIFIER_STAFF" },
-  { label: "System Admin (Oversight)", email: "admin@civiledger.test", role: "OVERSIGHT" },
+  { label: "🎓 Education Officer (Issuer)", email: "nusrat@edu.gov.test", role: "ISSUER_ADMIN" },
+  { label: "🏛️ NID Officer (Issuer)", email: "rahim@identity.gov.test", role: "ISSUER_ADMIN" },
+  { label: "🚗 BRTA Officer (Issuer)", email: "kamal@brta.gov.test", role: "ISSUER_ADMIN" },
+  { label: "👤 Ahnaf Tahmid (Citizen)", email: "ahnaf@citizen.test", role: "CITIZEN" },
+  { label: "👤 Sumaya Zaman (Citizen)", email: "sumaya@citizen.test", role: "CITIZEN" },
+  { label: "🔍 HR Manager (Verifier)", email: "abrar@employer.test", role: "VERIFIER_STAFF" },
+  { label: "🛡️ System Admin (Oversight)", email: "admin@civiledger.test", role: "OVERSIGHT" },
+  { label: "🛡️ Oversight Auditor", email: "auditor@civiledger.test", role: "OVERSIGHT" },
 ];
 
 export default function Login() {

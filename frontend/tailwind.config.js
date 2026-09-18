@@ -53,6 +53,15 @@ export default {
           bg: "var(--danger-bg)",
           border: "var(--danger-border)",
         },
+        warm: {
+          bg: "var(--warm-bg)",
+          border: "var(--warm-border)",
+        },
+        hero: {
+          bg: "var(--hero-bg)",
+          fg: "var(--hero-fg)",
+          "fg-muted": "var(--hero-fg-muted)",
+        },
       },
       fontFamily: {
         sans: [
@@ -79,18 +88,20 @@ export default {
         base: ["0.875rem", "1.375rem"],
         md: ["1rem", "1.5rem"],
         lg: ["1.25rem", "1.75rem"],
-        xl: ["1.5rem", "2rem"],
-        "2xl": ["1.875rem", "2.25rem"],
+        xl: ["1.5625rem", "2rem"],
+        "2xl": ["1.9375rem", "2.375rem"],
         "3xl": ["2.25rem", "2.75rem"],
         "4xl": ["3rem", "3.5rem"],
+        hero: ["clamp(2rem, 1.3rem + 3vw, 3.25rem)", "1.1"],
       },
       borderRadius: {
-        sm: "var(--radius-sm)",
-        control: "var(--radius-control)",
-        md: "var(--radius-md)",
-        container: "var(--radius-container)",
-        lg: "var(--radius-lg)",
-        xl: "var(--radius-xl)",
+        sm: "var(--radius-sm, 4px)",
+        control: "var(--radius-control, 6px)",
+        md: "var(--radius-md, 8px)",
+        container: "var(--radius-container, 12px)",
+        lg: "var(--radius-lg, 16px)",
+        xl: "var(--radius-xl, 24px)",
+        media: "14px",
       },
       boxShadow: {
         xs: "var(--shadow-xs)",
@@ -98,8 +109,10 @@ export default {
         md: "var(--shadow-md)",
         lg: "var(--shadow-lg)",
         xl: "var(--shadow-xl)",
-        overlay: "var(--shadow-overlay)",
+        overlay:
+          "0 1px 2px oklch(0.24 0.01 75 / 0.08), 0 8px 24px oklch(0.24 0.01 75 / 0.10)",
         "card-hover": "var(--shadow-card-hover)",
+        media: "var(--shadow-media)",
       },
       spacing: {
         sidebar: "var(--sidebar-width)",

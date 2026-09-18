@@ -1,19 +1,38 @@
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useWallet } from "../../hooks/useWallet";
 import { useAuth } from "../../hooks/useAuth";
+import { authApi } from "../../services/api";
 import { Button } from "../../components/ui/Button";
 import { Wallet, ShieldCheck, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function ConnectWallet() {
-  const { address, connect, connecting, error: walletError } = useWallet();
+  const { connect, connecting, error: walletError, signMessage } = useWallet();
   const { loginWithWallet } = useAuth();
   const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleConnect() {
-    const addr = await connect();
-    if (addr) {
-      await loginWithWallet(addr);
+    setBusy(true);
+    setError(null);
+    try {
+      const address = await connect();
+      if (!address) return;
+      // Challenge / response: the server sends a message, the wallet signs it.
+      const { data } = await authApi.walletNonce(address);
+      const signature = await signMessage(data.message);
+      await loginWithWallet(address, signature);
       navigate("/citizen");
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data
+          ?.error ||
+        (err as { message?: string })?.message ||
+        "Wallet login failed. Try again.";
+      setError(message);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -73,26 +92,26 @@ export default function ConnectWallet() {
             Link your MetaMask or browser Ethereum wallet to authenticate against your decentralized identity.
           </p>
 
-          {walletError && (
+          {(error || walletError) && (
             <div className="w-full mb-5 p-3 rounded-lg bg-err-bg border border-err-border text-err-fg text-xs flex items-center gap-2 text-left animate-fade-in">
               <AlertCircle size={16} className="shrink-0" />
-              <span>{walletError}</span>
+              <span>{error || walletError}</span>
             </div>
           )}
 
           <Button
             onClick={handleConnect}
-            disabled={connecting}
-            loading={connecting}
+            disabled={connecting || busy}
+            loading={connecting || busy}
             variant="primary"
             size="lg"
             className="w-full max-w-xs shadow-md hover:shadow-lg"
           >
-            {address ? (
-              <span className="truncate max-w-[200px]">{address}</span>
-            ) : (
-              "Connect MetaMask"
-            )}
+            {connecting
+              ? "Connecting..."
+              : busy
+              ? "Waiting for signature..."
+              : "Connect MetaMask"}
           </Button>
 
           <p className="text-[11px] text-text-muted mt-6 flex items-center justify-center gap-1.5">

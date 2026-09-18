@@ -1,24 +1,30 @@
 import type { ReactNode } from "react";
 import { Inbox } from "lucide-react";
 
-interface EmptyStateProps {
-  icon?: ReactNode;
-  title: string;
-  description?: string;
+export interface EmptyStateProps {
+  title: ReactNode;
+  description?: ReactNode;
   action?: ReactNode;
+  icon?: ReactNode;
 }
 
-export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
+/** Short heading, one sentence, one action. Used by every empty list and table. */
+export function EmptyState({ title, description, action, icon }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-sunken text-ink-subtle mb-4">
-        {icon || <Inbox size={28} />}
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center animate-fade-in">
+      <div
+        className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-sunken text-ink-subtle mb-3"
+        aria-hidden="true"
+      >
+        {icon || <Inbox size={24} />}
       </div>
-      <h3 className="text-md font-semibold text-ink mb-1">{title}</h3>
+      <p className="text-base font-semibold text-ink mb-1">{title}</p>
       {description && (
-        <p className="text-sm text-ink-muted max-w-sm mb-4">{description}</p>
+        <p className="max-w-[46ch] text-pretty text-sm text-ink-muted mb-4">
+          {description}
+        </p>
       )}
-      {action && <div>{action}</div>}
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }
